@@ -1,0 +1,15 @@
+[{
+  "id": 1,
+  "name": "2",
+  "coordinates": {
+    "x": 2.0,
+    "y": 2
+  },
+  "creationDate": "2023-09-23 15:48:18",
+  "distance": 2.0,
+  "location": {
+    "x": 2.0,
+    "y": 2.0,
+    "name": "2"
+  }
+}]
