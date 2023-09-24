@@ -1,6 +1,9 @@
 package org.lab7;
 
 
+import org.lab7.collection.data.User;
+import org.lab7.collection.data.UserCredentials;
+
 import java.io.IOException;
 
 /**
@@ -12,6 +15,8 @@ public class Main {
 
     private static CommandManager commandManager;
     private static ConnectionManager connectionManager;
+    private static UserCredentials credentials = null;
+    private static User currentUser = null;
 
     public static void main(String[] args) {
 
