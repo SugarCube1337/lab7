@@ -2,6 +2,8 @@ package org.lab7;
 
 import java.io.*;
 import java.nio.ByteBuffer;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -139,5 +141,30 @@ public class Utils {
      */
     public static int fromByteArray(byte[] bytes) {
         return ByteBuffer.wrap(bytes).getInt();
+    }
+
+    /**
+     * Hash the password using the SHA-256 algorithm.
+     *
+     * @param password The password to be hashed.
+     * @return Password hash as a string of hexadecimal characters.
+     * @throws RuntimeException If an error occurs while hashing the password.
+     */
+    public static String hashPassword(String password) {
+        try {
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            byte[] hash = digest.digest(password.getBytes());
+            StringBuilder hexString = new StringBuilder();
+            for (int i = 0; i < hash.length; i++) {
+                String hex = Integer.toHexString(0xff & hash[i]);
+                if (hex.length() == 1)
+                    hexString.append('0');
+                hexString.append(hex);
+            }
+            return hexString.toString();
+        } catch (NoSuchAlgorithmException ex) {
+            ex.printStackTrace();
+            throw new RuntimeException(ex);
+        }
     }
 }
