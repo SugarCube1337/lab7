@@ -8,7 +8,7 @@ import java.io.IOException;
 
 /**
  * The Main class serves as the entry point for the Route management application.
- * It initializes the CommandManager and ConnectionManager, and manages the application's main loop.
+ * It initializes the CommandManager, ConnectionManager, User and UserCredentials and manages the application's main loop.
  */
 
 public class Main {
@@ -56,6 +56,42 @@ public class Main {
      */
     public static ConnectionManager getConnectionManager() {
         return connectionManager;
+    }
+
+    /**
+     * Gets the user credentials.
+     *
+     * @return The user credentials.
+     */
+    public static UserCredentials getCredentials() {
+        return credentials;
+    }
+
+    /**
+     * Sets the user credentials.
+     *
+     * @param credentials The user credentials to set.
+     */
+    public static void setCredentials(UserCredentials credentials) {
+        Main.credentials = credentials;
+    }
+
+    /**
+     * Gets the currently logged-in user.
+     *
+     * @return The current user.
+     */
+    public static User getCurrentUser() {
+        return currentUser;
+    }
+
+    /**
+     * Sets the currently logged-in user.
+     *
+     * @param currentUser The current user to set.
+     */
+    public static void setCurrentUser(User currentUser) {
+        Main.currentUser = currentUser;
     }
 }
 

@@ -1,6 +1,8 @@
 package org.lab7;
 
 
+import org.lab7.collection.data.User;
+import org.lab7.collection.data.UserCredentials;
 import org.lab7.task.*;
 import org.lab7.task.Task;
 import org.lab7.udp.exception.ServerRuntimeException;
@@ -33,6 +35,7 @@ public class CommandManager {
         registerCommand("remove_last", new RemoveLastTask());
         registerCommand("reorder", new ReorderTask());
         registerCommand("max_by_distance", new MaxByDistanceTask());
+        registerCommand("actualize", new ActualizeTask());
     }
 
     /**
@@ -83,6 +86,49 @@ public class CommandManager {
      */
     public Map<String, Task> getCommands() {
         return commands;
+    }
+
+    /**
+     * Authenticates the user or allows for user registration, interacting with the user through the console.
+     * If the user is already authenticated, this method returns without any action.
+     *
+     * @throws ServerRuntimeException If there are errors during authentication or registration.
+     */
+    public void auth() {
+        if (Main.getCredentials() != null)
+            return;
+        while (true) {
+            try {
+                Scanner scanner = new Scanner(System.in);
+                System.out.println("Do you want to log in or register?");
+                System.out.println("1 = Log in");
+                System.out.println("2 = Register");
+                System.out.print("> ");
+                String request = scanner.nextLine().strip();
+                if ("1".equals(request)) { // авторизация
+                    System.out.print("Enter login: ");
+                    String login = scanner.nextLine().strip();
+                    System.out.print("Enter your password: ");
+                    String password = scanner.nextLine();
+                    UserCredentials credentials = new UserCredentials(login, password);
+                    User auth = Main.getConnectionManager().auth(credentials);
+                    System.out.println("Successful authorization. User - " + auth.getUsername());
+                    Main.setCredentials(credentials);
+                    Main.setCurrentUser(auth);
+                    break;
+                } else if ("2".equals(request)) { // регистрация
+                    System.out.print("Enter login: ");
+                    String login = scanner.nextLine().strip();
+                    System.out.print("Enter your password: ");
+                    String password = scanner.nextLine();
+                    UserCredentials credentials = new UserCredentials(login, password);
+                    Main.getConnectionManager().register(credentials);
+                    System.out.println("User " + login + " registered. Please log in to continue.");
+                }
+            } catch (ServerRuntimeException ex) {
+                System.out.println(ex.getMessage());
+            }
+        }
     }
 }
 

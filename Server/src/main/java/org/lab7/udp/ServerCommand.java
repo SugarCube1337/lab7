@@ -1,5 +1,7 @@
 package org.lab7.udp;
 
+import org.lab7.collection.data.UserCredentials;
+
 import java.io.Serializable;
 
 /**
@@ -7,17 +9,22 @@ import java.io.Serializable;
  * It encapsulates the type of the command and associated data.
  */
 public class ServerCommand implements Serializable {
-    private static final long serialVersionUID = 6529685098267757690L-10;
+    private static final long serialVersionUID = 6529685098267757690L - 10;
     public ServerCommandType type;
     public byte[] data;
     /**
-     * Creates a new instance of the `ServerCommand` class with the specified type and data.
+     * Constructs a ServerCommand with the specified type and data.
      *
-     * @param type The type of the command.
-     * @param data Additional data associated with the command.
+     * @param type The type of the server command.
+     * @param data The data associated with the command.
+     * @param userCredentials
      */
-    public ServerCommand(ServerCommandType type, byte[] data) {
+
+    public UserCredentials userCredentials;
+
+    public ServerCommand(ServerCommandType type, byte[] data, UserCredentials userCredentials) {
         this.type = type;
         this.data = data;
+        this.userCredentials = userCredentials;
     }
 }

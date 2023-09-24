@@ -2,6 +2,8 @@ package org.lab7;
 
 
 import org.lab7.collection.data.Route;
+import org.lab7.collection.data.User;
+import org.lab7.collection.data.UserCredentials;
 import org.lab7.udp.Client;
 import org.lab7.udp.ServerCommand;
 import org.lab7.udp.ServerCommandType;
@@ -37,10 +39,10 @@ public class ConnectionManager {
         try {
             byte[] response = client.sendMsg(Utils.serializeObject(command));
             if (response == null)
-                return new ServerCommand(ServerCommandType.ERROR, Utils.serializeObject("An error occurred while receiving packets from the server"));
+                return new ServerCommand(ServerCommandType.ERROR, Utils.serializeObject("An error occurred while receiving packets from the server"), null);
             return (ServerCommand) Utils.deserializeObject(response);
         } catch (IOException e) {
-            return new ServerCommand(ServerCommandType.ERROR, Utils.serializeObject("Server response timeout exceeded"));
+            return new ServerCommand(ServerCommandType.ERROR, Utils.serializeObject("Server response timeout exceeded"), null);
         }
     }
 
@@ -48,7 +50,7 @@ public class ConnectionManager {
      * Clears the collection on the server.
      */
     public void clear() {
-        if (send(new ServerCommand(ServerCommandType.CLEAR, null)).type == ServerCommandType.ERROR)
+        if (send(new ServerCommand(ServerCommandType.CLEAR, null, Main.getCredentials())).type == ServerCommandType.ERROR)
             throw new ServerRuntimeException("Failed to clear the collection.");
     }
 
@@ -58,7 +60,7 @@ public class ConnectionManager {
      * @return A list of strings containing collection information.
      */
     public List<String> getInfo() {
-        ServerCommand response = send(new ServerCommand(ServerCommandType.GET_INFO, null));
+        ServerCommand response = send(new ServerCommand(ServerCommandType.GET_INFO, null, Main.getCredentials()));
         if (response.type == ServerCommandType.ERROR)
             throw new ServerRuntimeException("Failed to get the information.");
         return (ArrayList<String>) Utils.deserializeObject(response.data);
@@ -70,7 +72,7 @@ public class ConnectionManager {
      * @param id The ID used as the threshold for removal.
      */
     public void removeGreater(int id) {
-        if (send(new ServerCommand(ServerCommandType.REMOVE_GREATER, Utils.intToBytes(id))).type == ServerCommandType.ERROR)
+        if (send(new ServerCommand(ServerCommandType.REMOVE_GREATER, Utils.intToBytes(id), Main.getCredentials())).type == ServerCommandType.ERROR)
             throw new ServerRuntimeException("Failed to carry out the deletion.");
     }
 
@@ -80,7 +82,7 @@ public class ConnectionManager {
      * @return True if a route was removed successfully, false if the collection is empty.
      */
     public boolean removeLast() {
-        ServerCommand response = send(new ServerCommand(ServerCommandType.REMOVE_LAST, null));
+        ServerCommand response = send(new ServerCommand(ServerCommandType.REMOVE_LAST, null, Main.getCredentials()));
         if (response.type == ServerCommandType.ERROR)
             throw new ServerRuntimeException("Failed to delete the item.");
         return response.data[0] == 1;
@@ -90,7 +92,7 @@ public class ConnectionManager {
      * Reorders the routes in the collection on the server.
      */
     public void reorder() {
-        if (send(new ServerCommand(ServerCommandType.REORDER, null)).type == ServerCommandType.ERROR)
+        if (send(new ServerCommand(ServerCommandType.REORDER, null, Main.getCredentials())).type == ServerCommandType.ERROR)
             throw new ServerRuntimeException("Failed to execute the operation.");
     }
 
@@ -100,7 +102,7 @@ public class ConnectionManager {
      * @return The route with the maximum distance.
      */
     public Route getMaxByDistance() {
-        ServerCommand response = send(new ServerCommand(ServerCommandType.GET_MAX_DISTANCE, null));
+        ServerCommand response = send(new ServerCommand(ServerCommandType.GET_MAX_DISTANCE, null, Main.getCredentials()));
         if (response.type == ServerCommandType.ERROR)
             throw new ServerRuntimeException("Failed to get the information.");
         return (Route) Utils.deserializeObject(response.data);
@@ -113,7 +115,7 @@ public class ConnectionManager {
      * @return A list of objects representing routes on the specified page.
      */
     public List<Object> show(int page) {
-        ServerCommand response = send(new ServerCommand(ServerCommandType.SHOW, Utils.intToBytes(page)));
+        ServerCommand response = send(new ServerCommand(ServerCommandType.SHOW, Utils.intToBytes(page), Main.getCredentials()));
         if (response.type == ServerCommandType.ERROR) {
             if (response.data == null || response.data.length == 0)
                 throw new ServerRuntimeException("Failed to get the information.");
@@ -129,7 +131,7 @@ public class ConnectionManager {
      * @return True if the route was removed successfully, false if the route was not found.
      */
     public boolean removeById(int id) {
-        ServerCommand response = send(new ServerCommand(ServerCommandType.REMOVE_BY_ID, Utils.intToBytes(id)));
+        ServerCommand response = send(new ServerCommand(ServerCommandType.REMOVE_BY_ID, Utils.intToBytes(id), Main.getCredentials()));
         if (response.type == ServerCommandType.ERROR)
             throw new ServerRuntimeException("The specified element was not found.");
         return response.data[0] == 1;
@@ -142,7 +144,7 @@ public class ConnectionManager {
      * @return True if the route was added successfully, false if there was a validation error.
      */
     public boolean add(Route route) {
-        ServerCommand response = send(new ServerCommand(ServerCommandType.ADD, Utils.serializeObject(route)));
+        ServerCommand response = send(new ServerCommand(ServerCommandType.ADD, Utils.serializeObject(route), Main.getCredentials()));
         if (response.type == ServerCommandType.ERROR)
             throw new ServerRuntimeException((String) Utils.deserializeObject(response.data));
         return response.data[0] == 1;
@@ -155,7 +157,7 @@ public class ConnectionManager {
      * @return The route with the specified ID.
      */
     public Route get(int id) {
-        ServerCommand response = send(new ServerCommand(ServerCommandType.GET, Utils.intToBytes(id)));
+        ServerCommand response = send(new ServerCommand(ServerCommandType.GET, Utils.intToBytes(id), Main.getCredentials()));
         if (response.type == ServerCommandType.ERROR)
             throw new ServerRuntimeException("The object with the given \"id\" does not exist.");
         return (Route) Utils.deserializeObject(response.data);
@@ -168,9 +170,51 @@ public class ConnectionManager {
      * @return True if the update was successful, false if there was a validation error.
      */
     public boolean update(Route organization) {
-        ServerCommand response = send(new ServerCommand(ServerCommandType.UPDATE, Utils.serializeObject(organization)));
+        ServerCommand response = send(new ServerCommand(ServerCommandType.UPDATE, Utils.serializeObject(organization), Main.getCredentials()));
         if (response.type == ServerCommandType.ERROR)
             throw new ServerRuntimeException((String) Utils.deserializeObject(response.data));
         return response.data[0] == 1;
     } // отправляется org.id = объект для изменения; false - ошибка валидации, передавать в ответе текст ошибки
+
+    /**
+     * Performs an actualization operation to update server data.
+     *
+     * @throws ServerRuntimeException If the actualization process fails.
+     */
+    public void actualize() {
+        if (send(new ServerCommand(ServerCommandType.ACTUALIZE, null, Main.getCredentials())).type == ServerCommandType.ERROR)
+            throw new ServerRuntimeException("Failed to update data.");
+    }
+
+    /**
+     * Authenticates a user with the provided credentials.
+     *
+     * @param credentials The user credentials for authentication.
+     * @return The authenticated user.
+     * @throws ServerRuntimeException If authentication fails due to invalid credentials or other errors.
+     */
+    public User auth(UserCredentials credentials) {
+        ServerCommand response = send(new ServerCommand(ServerCommandType.AUTH, null, credentials));
+        if (response.type == ServerCommandType.ERROR) {
+            if (response.data != null)
+                throw new ServerRuntimeException((String) Utils.deserializeObject(response.data));
+            throw new ServerRuntimeException("Invalid login or password");
+        }
+        return (User) Utils.deserializeObject(response.data);
+    }
+
+    /**
+     * Registers a new user with the provided credentials.
+     *
+     * @param credentials The user credentials for registration.
+     * @throws ServerRuntimeException If registration fails due to errors, such as an existing user with the same login.
+     */
+    public void register(UserCredentials credentials) {
+        ServerCommand response = send(new ServerCommand(ServerCommandType.REGISTER, Utils.serializeObject(credentials), null));
+        if (response.type == ServerCommandType.ERROR) {
+            if (response.data != null)
+                throw new ServerRuntimeException((String) Utils.deserializeObject(response.data));
+            throw new ServerRuntimeException("A user with this login already exists");
+        }
+    }
 }

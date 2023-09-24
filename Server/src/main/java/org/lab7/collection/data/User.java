@@ -2,6 +2,10 @@ package org.lab7.collection.data;
 
 import java.io.Serializable;
 
+/**
+ * Represents a User object that is Serializable.
+ */
+
 public class User implements Serializable {
     private static final long serialVersionUID = 6529685098267757690L + 3L;
     private int id;
