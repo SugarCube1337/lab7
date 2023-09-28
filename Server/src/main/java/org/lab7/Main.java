@@ -1,34 +1,39 @@
 package org.lab7;
 
 
-import java.io.File;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import java.io.IOException;
 
 
 /**
- * Main class for lab 7
+ * The main class of the Route Management Server.
  */
 
 
 public class Main {
     private static StorageManager storageManager;
     private static ConnectionManager connectionManager;
+    private static SQLManager sqlManager;
+    public static final Logger logger = LogManager.getLogger(Main.class);
 
-    public static void main(String[] args)  {
-
-        System.out.println("Route management");
-        File file = new File("data.json");
-        String filename = file.getAbsolutePath();
-
-        while (true) {
-            storageManager = new StorageManager(filename);
-            connectionManager = new ConnectionManager();
-            try {
-                connectionManager.run();
-            } catch (IOException ex) {
-                ex.printStackTrace();
-                System.out.println("Application restart..." + ex);
+    public static void main(String[] args) {
+        logger.info("Route management");
+        try {
+            while (true) {
+                sqlManager = new SQLManager();
+                storageManager = new StorageManager();
+                connectionManager = new ConnectionManager();
+                try {
+                    connectionManager.run();
+                } catch (IOException ex) {
+                    ex.printStackTrace();
+                    System.out.println("Application restart..." + ex);
+                }
             }
+        } catch (IllegalArgumentException ex) {
+            logger.error(ex.getMessage());
         }
     }
 
@@ -48,6 +53,10 @@ public class Main {
      */
     public static ConnectionManager getConnectionManager() {
         return connectionManager;
+    }
+
+    public static SQLManager getSqlManager() {
+        return sqlManager;
     }
 }
 

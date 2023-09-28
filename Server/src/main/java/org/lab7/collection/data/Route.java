@@ -17,23 +17,26 @@ public class Route implements Serializable {
     private Integer id;
     private String name;
     private Coordinates coordinates;
-    private LocalDateTime creationDate;
+    private String creationDate;
     private Float distance;
     private Location location;
+
+    private User owner;
 
 
     public Route() {
         id = Main.getStorageManager().getMaxId() + 1;
-        creationDate = LocalDateTime.now();
+        creationDate = LocalDateTime.now().toString();
     }
 
-    private Route(Integer id, String name, Coordinates coordinates, LocalDateTime creationDate, Float distance, Location location) {
+    public Route(Integer id, String name, Coordinates coordinates, String creationDate, Float distance, Location location, User owner) {
         this.id = id;
         this.name = name;
         this.coordinates = coordinates;
         this.creationDate = creationDate;
         this.distance = distance;
         this.location = location;
+        this.owner = owner;
     }
 
     public Integer getId() {
@@ -70,7 +73,7 @@ public class Route implements Serializable {
         this.location = location;
     }
 
-    public LocalDateTime getCreationDate() {
+    public String getCreationDate() {
         return creationDate;
     }
 
@@ -79,7 +82,7 @@ public class Route implements Serializable {
     }
 
     public void setDistance(float distance) {
-        if(distance == 0.0f)
+        if (distance == 0.0f)
             throw new IllegalArgumentException("The distance value cannot be empty");
         this.distance = distance;
     }
@@ -94,27 +97,16 @@ public class Route implements Serializable {
                 ", creationDate=" + creationDate +
                 ", location=" + location.toString() +
                 ", distance=" + distance +
+                ", owner="    + owner +
                 ']';
     }
 
-    public static Route parseJSON(String json) {
-        Gson gson = new Gson();
-        JsonObject jsonObject = JsonParser.parseString(json).getAsJsonObject();
-
-        Integer id = jsonObject.get("id").getAsInt();
-        String name = jsonObject.get("name").getAsString();
-        float x = jsonObject.get("coordinates").getAsJsonObject().get("x").getAsFloat();
-        int y = jsonObject.get("coordinates").getAsJsonObject().get("y").getAsInt();
-        LocalDateTime creationDate = LocalDateTime.parse(jsonObject.get("creationDate").getAsString());
-        float distance = jsonObject.get("distance").getAsFloat();
-
-        JsonObject locationObject = jsonObject.get("location").getAsJsonObject();
-        float xL = locationObject.get("x").getAsFloat();
-        float yL = locationObject.get("y").getAsFloat();
-        String nameL = locationObject.get("name").getAsString();
-        Location location = new Location(xL, yL, nameL);
-
-        Coordinates coordinates = new Coordinates(x, y);
-        return new Route(id, name, coordinates, creationDate, distance, location);
+    public void setOwner(User owner) {
+        this.owner = owner;
     }
+
+    public User getOwner() {
+        return owner;
+    }
+
 }

@@ -47,6 +47,8 @@ public class ConnectionManager {
         registerAction(ServerCommandType.GET_MAX_DISTANCE, new MaxByDistanceAction());
         registerAction(ServerCommandType.GET, new GetAction());
         registerAction(ServerCommandType.SAVE, new ServerSaveCommand());
+        registerAction(ServerCommandType.AUTH, new AuthAction());
+        registerAction(ServerCommandType.REGISTER, new RegisterAction());
     }
 
 

@@ -18,19 +18,22 @@ public class Route implements Serializable {
     private Float distance;
     private Location location;
 
+    private User owner;
+
 
     public Route() {
         id = -1;
         creationDate = LocalDateTime.now();
     }
 
-    private Route(Integer id, String name, Coordinates coordinates, LocalDateTime creationDate, Float distance, Location location) {
+    private Route(Integer id, String name, Coordinates coordinates, LocalDateTime creationDate, Float distance, Location location, User owner) {
         this.id = id;
         this.name = name;
         this.coordinates = coordinates;
         this.creationDate = creationDate;
         this.distance = distance;
         this.location = location;
+        this.owner = owner;
     }
 
     public Integer getId() {
@@ -97,12 +100,21 @@ public class Route implements Serializable {
                 ", name='" + name + '\'' +
                 ", coordinates=" + coordinates +
                 ", creationDate=" + creationDate +
-                ", distance=" + distance +
                 ", location=" + location.toString() +
+                ", distance=" + distance +
+                ", owner="    + owner +
                 ']';
     }
 
-    public static Route parseJSON(String[] fields) {
+    public void setOwner(User owner) {
+        this.owner = owner;
+    }
+
+    public User getOwner() {
+        return owner;
+    }
+
+    public static Route parseJSON(String[] fields, User current) {
         int id = -1;
         String name = Utils.unescapeString(fields[1]);
         float x = Float.parseFloat(fields[2]);
@@ -116,6 +128,6 @@ public class Route implements Serializable {
         String nameL = Utils.unescapeString(fields[7]);
         Location location = new Location(xL, yL, nameL);
 
-        return new Route(id, name, coordinates, creationDate, distance, location);
+        return new Route(id, name, coordinates, creationDate, distance, location, current);
     }
 }

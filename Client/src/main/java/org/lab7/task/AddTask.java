@@ -17,7 +17,7 @@ public class AddTask implements Task {
         if (args.length > 0) {
             try {
                 String[] fields = args[0].split(" ");
-                Route route = Route.parseJSON(fields);
+                Route route = Route.parseJSON(fields, Main.getCurrentUser());
 
                 if (Main.getConnectionManager().add(route)) {
                     System.out.println("Subject added.");

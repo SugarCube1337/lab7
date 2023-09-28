@@ -36,9 +36,9 @@ public class UpdateTask implements Task {
             try {
                 String jsonInput = String.join(" ", args);
                 Gson gson = new Gson();
-                Route organization = gson.fromJson(jsonInput, Route.class);
+                Route route = gson.fromJson(jsonInput, Route.class);
 
-                if (Main.getConnectionManager().add(organization))
+                if (Main.getConnectionManager().add(route))
                     System.out.println("Subject added.");
             } catch (Exception ex) {
                 System.out.println("Incorrect object data entered or JSON reading error!");

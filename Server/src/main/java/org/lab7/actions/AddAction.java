@@ -5,6 +5,7 @@ import org.lab7.Utils;
 import org.lab7.collection.data.Coordinates;
 import org.lab7.collection.data.Location;
 import org.lab7.collection.data.Route;
+import org.lab7.collection.data.User;
 import org.lab7.udp.ServerCommand;
 import org.lab7.udp.ServerCommandType;
 
@@ -21,7 +22,7 @@ public class AddAction implements Action {
      * @return A `ServerCommand` indicating the result of the add action (success or error).
      */
     @Override
-    public ServerCommand execute(byte[] args) {
+    public ServerCommand execute(byte[] args, User caller) {
         Route parsed = null;
         try {
             // Deserialize the route object from the received byte array
@@ -40,6 +41,7 @@ public class AddAction implements Action {
 
         Location location = new Location(parsed.getLocation().getX(), parsed.getLocation().getY(), parsed.getLocation().getName());
         created.setLocation(location);
+        created.setOwner(caller);
 
         // Add the created route to the storage manager
         Main.getStorageManager().add(created);
